@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Terminal - Oscar Sánchez</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.18.0.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0B0E1A;
+            --bg-secondary: #151825;
+            --bg-card: #1A1F35;
+            --bg-input: #232941;
+            --border-color: #2D3548;
+            --text-primary: #E8EAED;
+            --text-secondary: #A0A5B8;
+            --text-muted: #6B7280;
+            --accent-blue: #3B82F6;
+            --accent-blue-hover: #2563EB;
+            --success: #10B981;
+            --success-glow: rgba(16, 185, 129, 0.2);
+            --danger: #EF4444;
+            --danger-glow: rgba(239, 68, 68, 0.2);
+            --warning: #F59E0B;
+            --warning-glow: rgba(245, 158, 11, 0.2);
+            --info: #3B82F6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            background: linear-gradient(180deg, var(--bg-primary) 0%, #0D1117 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Navbar Premium */
+        .navbar-premium { 
+            background: linear-gradient(135deg, #151825 0%, #1A1F35 100%);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-subtitle {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-user {
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .navbar-user .user-name {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* Card System */
+        .card-premium { 
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .card-header-premium {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+
+        .card-header-premium h5 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .card-body-premium {
+            padding: 1.5rem;
+        }
+
+        /* Input Controls */
+        .form-control-premium, .form-select-premium {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-premium:focus, .form-select-premium:focus {
+            background: var(--bg-secondary);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .form-control-premium::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-label-premium {
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Button */
+        .btn-analyze {
+            background: linear-gradient(135deg, var(--accent-blue), #2563EB);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-analyze:hover {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Signal Display */
+        .signal-container {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(139, 92, 246, 0.03));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signal-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-blue), #8B5CF6);
+        }
+
+        .signal-container.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .signal-container.success::before {
+            background: var(--success);
+        }
+
+        .signal-container.danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.02));
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .signal-container.danger::before {
+            background: var(--danger);
+        }
+
+        .signal-container.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.02));
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .signal-container.warning::before {
+            background: var(--warning);
+        }
+
+        .signal-container.info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.02));
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .signal-container.info::before {
+            background: var(--info);
+        }
+
+        .signal-container.secondary {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.05), rgba(107, 114, 128, 0.02));
+            border-color: rgba(107, 114, 128, 0.2);
+        }
+
+        .signal-container.secondary::before {
+            background: var(--text-muted);
+        }
+
+        .signal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .signal-message {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .signal-meta {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 1.25rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1;
+        }
+
+        .metric-value.positive {
+            color: var(--success);
+            text-shadow: 0 0 20px var(--success-glow);
+        }
+
+        .metric-value.negative {
+            color: var(--danger);
+            text-shadow: 0 0 20px var(--danger-glow);
+        }
+
+        /* Sector List */
+        .sector-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .sector-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .sector-item:hover {
+            background: var(--bg-input);
+        }
+
+        .sector-name {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+        }
+
+        .sector-change {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Gauge Container */
+        .gauge-wrapper {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            height: 320px;
+        }
+
+        /* Details Section */
+        .details-section {
+            margin-top: 2rem;
+        }
+
+        .details-column h6 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .details-column ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .details-column li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .details-column li:last-child {
+            border-bottom: none;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-box-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box-content {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        .info-box-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+        }
+
+        .footer .credits {
+            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar-premium">
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div>
+                    <span class="navbar-brand">🎯 MARKET TERMINAL</span>
+                </div>
+                <div class="text-end">
+                    <div class="navbar-subtitle">PROFESSIONAL TRADING DASHBOARD</div>
+                    <div class="navbar-user">
+                        Developed by <span class="user-name">Oscar Sánchez</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <!-- Input Controls -->
+        <div class="card-premium">
+            <div class="card-body-premium">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label-premium">Ticker Symbol</label>
+                            <input type="text" name="ticker" class="form-control-premium" 
+                                   placeholder="TSLA, AAPL, NVDA, SPY..." value="{{ ticker }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-premium">Timeframe</label>
+                            <select name="temporalidad" class="form-select-premium">
+                                <option value="1h" {% if temporalidad == '1h' %}selected{% endif %}>1 Hour</option>
+                                <option value="4h" {% if temporalidad == '4h' %}selected{% endif %}>4 Hours</option>
+                                <option value="1d" {% if temporalidad == '1d' %}selected{% endif %}>1 Day</option>
+                                <option value="1wk" {% if temporalidad == '1wk' %}selected{% endif %}>1 Week</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-premium">RSI Manual (Opcional)</label>
+                            <input type="number" step="0.01" name="rsi_manual" class="form-control-premium" 
+                                placeholder="Ej: 77.31" value="{{ rsi_manual }}">
+                            <small class="text-muted" style="font-size: 0.7rem;">Vacío = automático</small>
+                        </div>
+                        <div class="col-md-5">
+                            <button type="submit" class="btn-analyze w-100">
+                                🔍 RUN ANALYSIS
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if show_results %}
+        <!-- BOT 1: Macro Sentiment -->
+        <div class="card-premium">
+            <div class="card-header-premium">
+                <h5>📊 BOT 1: MACRO MARKET SENTIMENT</h5>
+            </div>
+            <div class="card-body-premium">
+                <div class="signal-container {{ bot1.color }}">
+                    <div class="signal-title">{{ bot1.signal }}</div>
+                    <div class="signal-message">{{ bot1.message }}</div>
+                    <div class="signal-meta">
+                        TIMEFRAME: {{ bot1.temporalidad|upper }} | PERIODS: {{ bot1.n_velas }}
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-label">US10Y</div>
+                        <div class="metric-value {% if bot1.data.us10y > 0 %}positive{% else %}negative{% endif %}">
+                            {% if bot1.data.us10y > 0 %}+{% endif %}{{ bot1.data.us10y|floatformat:2 }}%
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">NASDAQ (QQQ)</div>
+                        <div class="metric-value {% if bot1.data.qqq > 0 %}positive{% else %}negative{% endif %}">
+                            {% if bot1.data.qqq > 0 %}+{% endif %}{{ bot1.data.qqq|floatformat:2 }}%
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">DXY</div>
+                        <div class="metric-value {% if bot1.data.dxy > 0 %}positive{% else %}negative{% endif %}">
+                            {% if bot1.data.dxy > 0 %}+{% endif %}{{ bot1.data.dxy|floatformat:2 }}%
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">VIX</div>
+                        <div class="metric-value {% if bot1.data.vix > 0 %}negative{% else %}positive{% endif %}">
+                            {% if bot1.data.vix > 0 %}+{% endif %}{{ bot1.data.vix|floatformat:2 }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOT 2: Flow Analysis -->
+        <div class="card-premium">
+            <div class="card-header-premium">
+                <h5>🔄 BOT 2: FLOW ANALYSIS — SECTOR ROTATION</h5>
+            </div>
+            <div class="card-body-premium">
+                <div class="signal-container {{ bot2.rotation.color }}">
+                    <div class="signal-title">{{ bot2.rotation.signal }}</div>
+                    <div class="signal-message">{{ bot2.rotation.message }}</div>
+                    <div class="signal-meta">
+                        TIMEFRAME: {{ bot2.temporalidad|upper }} | PERIODS: {{ bot2.n_velas }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">🏆 Top Performing Sectors</div>
+                            <div class="sector-list">
+                                {% for ticker, data in bot2.winners %}
+                                <div class="sector-item">
+                                    <span class="sector-name">{{ data.emoji }} {{ data.name }}</span>
+                                    <span class="sector-change positive">+{{ data.change|floatformat:2 }}%</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">📉 Underperforming Sectors</div>
+                            <div class="sector-list">
+                                {% for ticker, data in bot2.losers %}
+                                <div class="sector-item">
+                                    <span class="sector-name">{{ data.emoji }} {{ data.name }}</span>
+                                    <span class="sector-change negative">{{ data.change|floatformat:2 }}%</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">📊 Growth vs Value</div>
+                            <div class="info-box-content">
+                                {% if bot2.factors.growth_vs_value > 0 %}
+                                Growth stocks outperforming Value by 
+                                <span class="text-success">+{{ bot2.factors.growth_vs_value|floatformat:2 }}%</span>
+                                {% else %}
+                                Value stocks outperforming Growth by 
+                                <span class="text-danger">{{ bot2.factors.growth_vs_value|floatformat:2 }}%</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">📈 Large Cap vs Small Cap</div>
+                            <div class="info-box-content">
+                                {% if bot2.factors.large_vs_small > 0 %}
+                                Large Caps outperforming Small Caps by 
+                                <span class="text-success">+{{ bot2.factors.large_vs_small|floatformat:2 }}%</span>
+                                {% else %}
+                                Small Caps outperforming Large Caps by 
+                                <span class="text-danger">{{ bot2.factors.large_vs_small|floatformat:2 }}%</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOT 3: Smart Money vs Dumb Money -->
+        <div class="card-premium">
+            <div class="card-header-premium">
+                <h5>🧠 BOT 3: SMART MONEY VS RETAIL — {{ ticker }}</h5>
+            </div>
+            <div class="card-body-premium">
+                <div class="signal-container {{ bot3.combined.color }}">
+                    <div class="signal-title">{{ bot3.combined.signal }}</div>
+                    <div class="signal-message">{{ bot3.combined.message }}</div>
+                    <div class="signal-meta">
+                        RECOMMENDATION: {{ bot3.combined.recommendation|upper }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">📊 Put/Call Ratio Analysis</div>
+                            <div class="info-box-content">
+                                <strong>{{ bot3.put_call.signal.level }}</strong>
+                                <p class="mt-2">{{ bot3.put_call.signal.message }}</p>
+                                {% if bot3.put_call.data %}
+                                <div class="mt-3">
+                                    <small class="text-muted">Ratio: {{ bot3.put_call.data.ratio|floatformat:2 }}</small><br>
+                                    <small class="text-muted">Put Volume: {{ bot3.put_call.data.put_volume|floatformat:0 }}</small><br>
+                                    <small class="text-muted">Call Volume: {{ bot3.put_call.data.call_volume|floatformat:0 }}</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">👔 Insider Activity</div>
+                            <div class="info-box-content">
+                                <strong>{{ bot3.insider.signal.level }}</strong>
+                                <p class="mt-2">{{ bot3.insider.signal.message }}</p>
+                                {% if bot3.insider.data.available %}
+                                <div class="mt-3">
+                                    <small class="text-muted">Net Shares: {{ bot3.insider.data.net_shares|floatformat:0 }}</small><br>
+                                    <small class="text-muted">Recent Transactions: {{ bot3.insider.data.transactions }}</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOT 4: Retail vs Fundamentals -->
+        <div class="card-premium">
+            <div class="card-header-premium">
+                <h5>🎯 BOT 4: RETAIL SENTIMENT VS FUNDAMENTALS — {{ ticker }}</h5>
+            </div>
+            <div class="card-body-premium">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="gauge-wrapper">
+                            <div id="retailGauge" style="height: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="gauge-wrapper">
+                            <div id="fundamentalGauge" style="height: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="signal-container {{ bot4.signal.color }}">
+                    <div class="signal-title">{{ bot4.signal.signal }}</div>
+                    <div class="signal-message">{{ bot4.signal.message }}</div>
+                </div>
+
+                <div class="details-section">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="details-column">
+                                <h6>📱 Retail Sentiment Breakdown</h6>
+                                <ul>
+                                    <li>Google Trends: {{ bot4.retail.google_trends }}/100</li>
+                                    <li>Social Activity: {{ bot4.retail.reddit_mentions }}/100</li>
+                                    <li>Overall Level: {{ bot4.retail.level }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="details-column">
+                                <h6>📈 Fundamental Metrics</h6>
+                                <ul>
+                                    <li>P/E Ratio: {{ bot4.fundamentals.pe_ratio }}</li>
+                                    <li>Debt/Equity: {{ bot4.fundamentals.debt_to_equity }}</li>
+                                    <li>Revenue Growth: {{ bot4.fundamentals.revenue_growth }}%</li>
+                                    <li>Profit Margin: {{ bot4.fundamentals.profit_margin }}%</li>
+                                    <li>Overall Level: {{ bot4.fundamentals.level }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOT 5: Technical Analysis -->
+        {% if bot5.available %}
+        <div class="card-premium">
+            <div class="card-header-premium">
+                <h5>🔬 BOT 5: TECHNICAL ANALYSIS — {{ ticker }}</h5>
+            </div>
+            <div class="card-body-premium">
+                <div class="signal-container {{ bot5.combined.color }}">
+                    <div class="signal-title">{{ bot5.combined.signal }}</div>
+                    <div class="signal-message">{{ bot5.combined.message }}</div>
+                    <div class="signal-meta">
+                        CONVICTION: {{ bot5.combined.conviction|upper }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-box">
+                            <div class="info-box-title">💰 Price Action</div>
+                            <div class="info-box-value">
+                                ${{ bot5.price.current|floatformat:2 }}
+                            </div>
+                            <div class="info-box-content">
+                                <span class="{% if bot5.price.change > 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if bot5.price.change > 0 %}+{% endif %}{{ bot5.price.change|floatformat:2 }}%
+                                </span> today
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-box">
+                            <div class="info-box-title">📊 RSI (14)</div>
+                            <div class="info-box-content">
+                                <strong>{{ bot5.rsi.signal.level }}</strong>
+                                <div class="info-box-value">{{ bot5.rsi.value|floatformat:1 }}</div>
+                                <p class="mt-2">{{ bot5.rsi.signal.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-box">
+                            <div class="info-box-title">📈 MACD</div>
+                            <div class="info-box-content">
+                                <strong>{{ bot5.macd.signal.level }}</strong>
+                                <p class="mt-2">{{ bot5.macd.signal.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">🎯 Support / Resistance</div>
+                            <div class="details-column">
+                                <ul>
+                                    <li>Resistance: ${{ bot5.support_resistance.resistance|floatformat:2 }} 
+                                        <span class="text-warning">(+{{ bot5.support_resistance.distance_to_resistance|floatformat:1 }}%)</span>
+                                    </li>
+                                    <li>Current: ${{ bot5.support_resistance.current|floatformat:2 }}</li>
+                                    <li>Support: ${{ bot5.support_resistance.support|floatformat:2 }} 
+                                        <span class="text-success">(-{{ bot5.support_resistance.distance_to_support|floatformat:1 }}%)</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-box-title">📊 Volume Analysis</div>
+                            <div class="info-box-content">
+                                <strong>{{ bot5.volume.level|upper }}</strong>
+                                <div class="mt-2">
+                                    <small class="text-muted">Current: {{ bot5.volume.current|floatformat:0 }}</small><br>
+                                    <small class="text-muted">20-day Avg: {{ bot5.volume.average|floatformat:0 }}</small><br>
+                                    <small class="text-muted">Ratio: {{ bot5.volume.ratio|floatformat:2 }}x</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card-premium">
+            <div class="card-header-premium">
+                <h5>🔬 BOT 5: TECHNICAL ANALYSIS — {{ ticker }}</h5>
+            </div>
+            <div class="card-body-premium">
+                <div class="signal-container secondary">
+                    <div class="signal-title">⚠️ DATA NOT AVAILABLE</div>
+                    <div class="signal-message">
+                        Technical analysis data not available for {{ ticker }}. Try a different ticker.
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>Market Terminal © 2026 - Professional Trading Dashboard</div>
+            <div class="credits">
+                Developed with 🚀 by <strong>Oscar Sánchez</strong> | Physics Student @ Universidad de Guanajuato
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        {% if show_results %}
+        // Retail Sentiment Gauge
+        var retailData = [{
+            type: "indicator",
+            mode: "gauge+number",
+            value: {{ bot4.retail.score }},
+            title: { 
+                text: "RETAIL SENTIMENT", 
+                font: { color: "#A0A5B8", size: 14, family: "Inter" } 
+            },
+            number: { 
+                suffix: " / 100", 
+                font: { color: "#E8EAED", size: 32, family: "JetBrains Mono" } 
+            },
+            gauge: {
+                axis: { 
+                    range: [null, 100], 
+                    tickcolor: "#2D3548",
+                    tickfont: { color: "#6B7280", size: 10 }
+                },
+                bar: { color: "#3B82F6", thickness: 0.3 },
+                bgcolor: "#151825",
+                borderwidth: 0,
+                steps: [
+                    { range: [0, 33], color: "#EF4444" },
+                    { range: [33, 66], color: "#F59E0B" },
+                    { range: [66, 100], color: "#10B981" }
+                ],
+                threshold: {
+                    line: { color: "#E8EAED", width: 3 },
+                    thickness: 0.8,
+                    value: {{ bot4.retail.score }}
+                }
+            }
+        }];
+
+        var retailLayout = { 
+            paper_bgcolor: "#1A1F35",
+            plot_bgcolor: "#1A1F35",
+            font: { color: "#E8EAED", family: "Inter" },
+            margin: { t: 40, b: 20, l: 40, r: 40 }
+        };
+        
+        Plotly.newPlot('retailGauge', retailData, retailLayout, {
+            responsive: true, 
+            displayModeBar: false
+        });
+
+        // Fundamental Strength Gauge
+        var fundData = [{
+            type: "indicator",
+            mode: "gauge+number",
+            value: {{ bot4.fundamentals.score }},
+            title: { 
+                text: "FUNDAMENTAL STRENGTH", 
+                font: { color: "#A0A5B8", size: 14, family: "Inter" } 
+            },
+            number: { 
+                suffix: " / 100", 
+                font: { color: "#E8EAED", size: 32, family: "JetBrains Mono" } 
+            },
+            gauge: {
+                axis: { 
+                    range: [null, 100], 
+                    tickcolor: "#2D3548",
+                    tickfont: { color: "#6B7280", size: 10 }
+                },
+                bar: { color: "#F59E0B", thickness: 0.3 },
+                bgcolor: "#151825",
+                borderwidth: 0,
+                steps: [
+                    { range: [0, 33], color: "#EF4444" },
+                    { range: [33, 66], color: "#F59E0B" },
+                    { range: [66, 100], color: "#10B981" }
+                ],
+                threshold: {
+                    line: { color: "#E8EAED", width: 3 },
+                    thickness: 0.8,
+                    value: {{ bot4.fundamentals.score }}
+                }
+            }
+        }];
+
+        var fundLayout = {
+            paper_bgcolor: "#1A1F35",
+            plot_bgcolor: "#1A1F35",
+            font: { color: "#E8EAED", family: "Inter" },
+            margin: { t: 40, b: 20, l: 40, r: 40 }
+        };
+        
+        Plotly.newPlot('fundamentalGauge', fundData, fundLayout, {
+            responsive: true, 
+            displayModeBar: false
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
