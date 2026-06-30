@@ -530,15 +530,6 @@
 
         {% if show_results %}
 
-        {# ============================================================
-           TODO (futuro): MASTER SIGNAL aquí
-           Agregar en views.py un dict `master_signal` con:
-             - verdict: BULLISH / NEUTRAL / BEARISH
-             - conviction_score: 0–100 (peso ponderado de los 5 bots)
-             - color: success / danger / warning / secondary
-           Luego renderizar un signal-container XL arriba de las secciones.
-           ============================================================ #}
-
         <!-- =========================================
              STICKY SECTION NAV
              ========================================= -->
@@ -698,8 +689,6 @@
                 </div>
             </header>
 
-            {# Divergence flag: aparece solo cuando Bot 3 y Bot 4 mandan colores opuestos
-               (excluyendo 'secondary' que es "no data"). Lógica pura de template. #}
             {% if bot3.combined.color and bot4.signal.color and bot3.combined.color != bot4.signal.color and bot3.combined.color != 'secondary' and bot4.signal.color != 'secondary' %}
             <div class="divergence-flag">
                 <div class="divergence-icon">⚠️</div>
