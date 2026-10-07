@@ -1,7 +1,0 @@
-Django==5.0
-yfinance==0.2.37
-pytrends==4.9.2
-praw==7.7.1
-pandas==2.2.1
-plotly==5.20.0
-requests==2.31.0
