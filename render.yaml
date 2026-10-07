@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: market-terminal
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    # --timeout 120: los bots tardan en la primera consulta (sin caché caliente).
+    # El default de gunicorn son 30s y mataría el worker a media descarga.
+    # --workers 1: la caché es en memoria del proceso; con 1 worker se comparte
+    # entre todas las consultas en vez de duplicarse.
+    startCommand: "gunicorn config.wsgi:application --timeout 120 --workers 1 --threads 4"
+    healthCheckPath: /healthz/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.7"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: WEB_CONCURRENCY
+        value: "1"
